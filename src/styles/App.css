@@ -1,0 +1,107 @@
+body { 
+  margin: 0; 
+}
+
+.app-container {
+  position: relative;
+  min-height: 100vh; 
+  background: linear-gradient(135deg, #a8d8ea 0%, #78c2d8 100%);
+  font-family: 'Arial', sans-serif;
+  overflow: hidden;
+}
+
+.panda-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.panda-wrapper { 
+  position: relative; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+}
+
+.panda-svg { 
+  cursor: pointer; 
+  z-index: 2; 
+  position: relative;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.panda-svg:hover { 
+  transform: scale(1.02); 
+}
+
+.shadow {
+  width: 100px; 
+  height: 20px; 
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 50%; 
+  filter: blur(4px);
+  z-index: 1; 
+  margin-top: -30px;
+  transition: all 0.2s ease-out;
+}
+
+.head-group { 
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  transform-origin: 95px 120px; 
+}
+
+.pupil-group { 
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+#tangan_kiri_group { 
+  transform-origin: 25px 148px; 
+}
+
+#tangan_kanan_group { 
+  transform-origin: 165px 148px; 
+}
+
+#panda-body-jump-group { 
+  transition: transform 0.1s linear; 
+}
+
+.lanyard-container {
+  position: absolute;
+  top: 0;
+  right: 10%;
+  height: 85vh;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+}
+
+.lanyard-svg {
+  height: 100%;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+}
+
+/* Untuk judul "Digital Consultant" */
+.animated-title {
+  /* Animasi perubahan warna pastel */
+  animation: pastel-colors 10s infinite linear;
+  
+  /* Efek outline tipis agar teks selalu terbaca */
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.1);
+  text-stroke: 1px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes pastel-colors {
+  0%   { color: #FFB3BA; } /* Pastel Pink */
+  25%  { color: #BAFFC9; } /* Pastel Green */
+  50%  { color: #FFFFBA; } /* Pastel Yellow */
+  75%  { color: #BAE1FF; } /* Pastel Blue */
+  100% { color: #FFB3BA; } /* Kembali ke Pink */
+}
