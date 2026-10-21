@@ -18,6 +18,8 @@ export default function LandingHomePage() {
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   // Form State: Edit
   const [editAuth, setEditAuth] = useState({
@@ -388,14 +390,25 @@ export default function LandingHomePage() {
               <label className="form-label">
                 🔑 Password anda :
               </label>
-              <input
-                type="password"
-                required
-                placeholder="Buat password untuk edit nanti"
-                className="form-input"
-                value={createForm.password}
-                onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-              />
+              <div className="password-input-wrapper">
+                <input
+                  type={showCreatePassword ? 'text' : 'password'}
+                  required
+                  placeholder="Buat password untuk edit nanti"
+                  className="form-input"
+                  value={createForm.password}
+                  onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowCreatePassword(!showCreatePassword)}
+                  aria-label="Toggle password visibility"
+                  title={showCreatePassword ? 'Sembunyikan password' : 'Intip password'}
+                >
+                  {showCreatePassword ? '🙈' : '👁️'}
+                </button>
+              </div>
               <span style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px', display: 'block' }}>
                 *Digunakan jika suatu saat ingin mengubah foto atau ucapan.
               </span>
@@ -450,14 +463,25 @@ export default function LandingHomePage() {
 
                 <div>
                   <label className="form-label">🔑 Password anda :</label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="Masukkan password akun Anda"
-                    className="form-input"
-                    value={editAuth.password}
-                    onChange={(e) => setEditAuth({ ...editAuth, password: e.target.value })}
-                  />
+                  <div className="password-input-wrapper">
+                    <input
+                      type={showEditPassword ? 'text' : 'password'}
+                      required
+                      placeholder="Masukkan password akun Anda"
+                      className="form-input"
+                      value={editAuth.password}
+                      onChange={(e) => setEditAuth({ ...editAuth, password: e.target.value })}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowEditPassword(!showEditPassword)}
+                      aria-label="Toggle password visibility"
+                      title={showEditPassword ? 'Sembunyikan password' : 'Intip password'}
+                    >
+                      {showEditPassword ? '🙈' : '👁️'}
+                    </button>
+                  </div>
                 </div>
 
                 <button
