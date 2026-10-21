@@ -45,6 +45,7 @@ export async function POST(request) {
             recipient_name: matchingG.recipient_name,
             sender_name: matchingG.sender_name,
             photo_url: matchingG.photo_url,
+            relationship: matchingG.relationship || 'parent_to_child',
             slug: matchingG.slug,
             email: matchingG.email,
           },
@@ -84,18 +85,20 @@ export async function POST(request) {
           recipient_name: matchingRecord.nama_umkm,
           sender_name: matchingRecord.deskripsi,
           photo_url: matchingRecord.logo_url,
+          relationship: matchingRecord.marketplace_url || 'parent_to_child',
           slug: matchingRecord.owner_url,
           email: matchingRecord.instagram_url,
         },
       });
     }
 
-    // 2. Handling Update with FormData (supports new photo upload)
+    // 2. Handling Update with FormData (supports new photo upload and relationship change)
     const formData = await request.formData();
     const email = formData.get('email')?.trim().toLowerCase();
     const password = formData.get('password')?.trim();
     const recipientName = formData.get('recipient_name')?.trim();
     const senderName = formData.get('sender_name')?.trim();
+    const relationship = formData.get('relationship')?.trim();
     const currentPhotoUrl = formData.get('current_photo_url')?.trim();
     const photoFile = formData.get('photo');
     const slug = formData.get('slug')?.trim();
@@ -151,6 +154,7 @@ export async function POST(request) {
           recipient_name: recipientName || targetG.recipient_name,
           sender_name: senderName || targetG.sender_name,
           photo_url: finalPhotoUrl,
+          relationship: relationship || targetG.relationship || 'parent_to_child',
           updated_at: new Date().toISOString(),
         })
         .eq('id', targetG.id);
@@ -190,6 +194,7 @@ export async function POST(request) {
           recipient_name: recipientName || targetG.recipient_name,
           sender_name: senderName || targetG.sender_name,
           photo_url: finalPhotoUrl,
+          relationship: relationship || targetG.relationship || 'parent_to_child',
           slug: activeSlug,
         },
       });
@@ -244,6 +249,7 @@ export async function POST(request) {
         nama_umkm: recipientName || targetRecord.nama_umkm,
         deskripsi: senderName || targetRecord.deskripsi,
         logo_url: finalPhotoUrl,
+        marketplace_url: relationship || targetRecord.marketplace_url || 'parent_to_child',
         updated_at: new Date().toISOString(),
       })
       .eq('id', targetRecord.id);
@@ -283,6 +289,7 @@ export async function POST(request) {
         recipient_name: recipientName || targetRecord.nama_umkm,
         sender_name: senderName || targetRecord.deskripsi,
         photo_url: finalPhotoUrl,
+        relationship: relationship || targetRecord.marketplace_url || 'parent_to_child',
         slug: activeSlug,
       },
     });

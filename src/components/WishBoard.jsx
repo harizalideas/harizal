@@ -1,53 +1,47 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { birthdaySynth } from './AudioSynth';
 import Lanyard from './Lanyard';
-
-const DEFAULT_WISHES = [
-  {
-    id: 1,
-    name: 'Berlian & Harizal ❤️',
-    text: 'Selamat ulang tahun Nurlaila sayang! Makasih udah selalu jadi sahabat terbaik dan keluarga buat kami. Sehat terus, bahagia selalu, dan lancar semua urusannya ya! 🤲🌸',
-    time: 'Hari ini',
-  },
-  {
-    id: 2,
-    name: 'Keluarga Besar Harizal & Berlian',
-    text: 'Barakallahu fii umrik Nurlaila! Semoga di usia yang baru ini Allah limpahkan berkah berlipat ganda, rezeki melimpah, serta kebahagiaan dunia akhirat! 🌟🎂',
-    time: 'Hari ini',
-  },
-  {
-    id: 3,
-    name: 'Mochi (Coucou)',
-    text: 'Horeee selamat ulang tahun Kak Nurlaila! Mochi ikut berdoa agar semua harapan Kak Nurlaila terwujud! 🐾✨',
-    time: 'Baru saja',
-  },
-];
+import { getGreetingContext } from '@/lib/relationships';
 
 export default function WishBoard({
   recipientName = 'Nurlaila',
   senderName = 'Harizal & Berlian Sekeluarga',
   photoUrl = '/kado/nurlaila.jpeg',
+  relationship = 'parent_to_child',
+  slug = '',
 }) {
-  const [wishes, setWishes] = useState(DEFAULT_WISHES);
+  const context = useMemo(() => {
+    return getGreetingContext(relationship, recipientName, senderName);
+  }, [relationship, recipientName, senderName]);
+
+  const [wishes, setWishes] = useState(context.defaultWishes);
   const [message, setMessage] = useState('');
-  const [isGiftOpen, setIsGiftOpen] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastSubmittedWish, setLastSubmittedWish] = useState('');
 
+  const storageKey = useMemo(() => {
+    const safeKey = (slug || recipientName).toLowerCase().replace(/[^a-z0-9]/g, '_');
+    return `birthday_wishes_${safeKey}`;
+  }, [slug, recipientName]);
+
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('nurlaila_birthday_wishes');
+      const stored = localStorage.getItem(storageKey);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setWishes(parsed);
+          return;
         }
       }
-    } catch {}
-  }, []);
+      setWishes(context.defaultWishes);
+    } catch {
+      setWishes(context.defaultWishes);
+    }
+  }, [storageKey, context.defaultWishes]);
 
   const handleSendHope = (e) => {
     e.preventDefault();
@@ -56,7 +50,7 @@ export default function WishBoard({
     const wishText = message.trim();
     const newWish = {
       id: Date.now(),
-      name: 'Nurlaila ✨',
+      name: `${recipientName} ✨`,
       text: wishText,
       time: 'Baru saja dipanjatkan',
     };
@@ -64,7 +58,7 @@ export default function WishBoard({
     const updated = [newWish, ...wishes];
     setWishes(updated);
     try {
-      localStorage.setItem('nurlaila_birthday_wishes', JSON.stringify(updated));
+      localStorage.setItem(storageKey, JSON.stringify(updated));
     } catch {}
 
     setLastSubmittedWish(wishText);
@@ -81,50 +75,29 @@ export default function WishBoard({
     setShowSuccessModal(true);
   };
 
-  const handleToggleGift = () => {
-    setIsGiftOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        birthdaySynth.playChimeSuccess();
-        confetti({
-          particleCount: 90,
-          spread: 80,
-          origin: { y: 0.5 },
-        });
-      }
-      return next;
-    });
-  };
-
   return (
     <div style={{ width: '100%' }}>
-      {/* 1. Special Heartfelt Letter from sender */}
+      {/* 1. Special Heartfelt Letter tailored to relationship */}
       <div className="special-letter-card glass-panel">
         <div className="letter-header">
           <div className="letter-avatar-couple">💌</div>
           <div>
-            <div className="letter-title">Pesan Hangat Dari Kami</div>
+            <div className="letter-title">{context.letterTitle}</div>
             <div className="letter-subtitle">{senderName}</div>
           </div>
         </div>
 
         <div className="letter-body">
           <p>
-            <strong>Untuk {recipientName} Tersayang,</strong>
+            <strong>{context.letterGreeting}</strong>
           </p>
-          <p>
-            Di hari yang penuh kebahagiaan ini, kami ingin mengucapkan <em>Selamat Ulang Tahun</em> yang paling hangat dan penuh berkah.
-          </p>
-          <p>
-            Bagi kami ({senderName}), {recipientName} bukan sekadar sahabat, tapi sudah menjadi bagian keluarga yang begitu berharga dan kami sayangi.
-          </p>
-          <p>
-            Terima kasih atas segala tawa, ketulusan, dan kebaikan yang selalu mengalir selama ini. Semoga Allah SWT senantiasa menganugerahkan kesehatan, umur yang penuh berkah, kebahagiaan lahir batin, kelapangan rezeki, serta kemudahan dalam menggapai setiap impian dan cita-cita {recipientName}.
-          </p>
+          {context.letterParagraphs.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
         </div>
 
         <div className="letter-signature">
-          Peluk hangat &amp; doa tulus, {senderName} ❤️
+          {context.letterSignature}
         </div>
       </div>
 
@@ -156,8 +129,8 @@ export default function WishBoard({
           }}
         >
           <Lanyard
-            frontImage={photoUrl || '/kado/nurlaila.jpeg'}
-            backImage={photoUrl || '/kado/nurlaila.jpeg'}
+            frontImage={photoUrl || '/images/placeholder-card.svg'}
+            backImage={photoUrl || '/images/placeholder-card.svg'}
             cardColor="#1A1D26"
             strapColor="#E11D48"
             metal="gold"
@@ -190,7 +163,7 @@ export default function WishBoard({
               boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
             }}
           >
-            👆 Sentuh, tarik &amp; putar foto Nurlaila!
+            👆 Sentuh, tarik &amp; putar foto {recipientName}!
           </div>
         </div>
 
@@ -199,20 +172,20 @@ export default function WishBoard({
         </p>
       </div>
 
-      {/* 3. Section Sampaikan Harapan & Doa Nurlaila */}
+      {/* 3. Section Sampaikan Harapan & Doa (Dinamis Sesuai Data) */}
       <div className="wish-card glass-panel">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
           <span style={{ fontSize: '20px' }}>🌸</span>
           <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#F8FAFC' }}>
-            Sampaikan Harapan &amp; Doa Nurlaila
+            Sampaikan Harapan &amp; Doa {recipientName}
           </h3>
         </div>
         
         <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', lineHeight: '1.5' }}>
-          Di usia yang baru ini, tuliskan impian, cita-cita, dan doa yang Nurlaila panjatkan kepada Allah SWT:
+          Di usia yang baru ini, tuliskan impian, cita-cita, dan doa yang {recipientName} panjatkan kepada Allah SWT:
         </p>
 
-        {/* Input Form Khusus Nurlaila */}
+        {/* Input Form Dinamis */}
         <form onSubmit={handleSendHope} className="wish-form">
           <div
             style={{
@@ -231,13 +204,13 @@ export default function WishBoard({
             }}
           >
             <span>✍️</span>
-            <span>Harapan dari: Nurlaila</span>
+            <span>Harapan dari: {recipientName}</span>
           </div>
 
           <textarea
             className="input-glass"
             rows={3}
-            placeholder="Tuliskan harapan dan doa Nurlaila di sini (kesehatan, kelapangan rezeki, impian yang ingin dicapai)..."
+            placeholder={`Tuliskan harapan dan doa ${recipientName} di sini (kesehatan, kelapangan rezeki, cita-cita yang ingin dicapai)...`}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={300}
@@ -254,7 +227,7 @@ export default function WishBoard({
           </button>
         </form>
 
-        {/* Daftar Doa & Harapan Bersama */}
+        {/* Daftar Doa & Harapan Dinamis Sesuai Data */}
         <div style={{ marginTop: '22px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
           <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#FDE047', marginBottom: '10px' }}>
             📖 Kumpulan Doa &amp; Harapan:
@@ -274,7 +247,7 @@ export default function WishBoard({
         </div>
       </div>
 
-      {/* MODAL RESPON: "Semoga harapan dan doa Nurlaila terwujud, Amin" */}
+      {/* MODAL RESPON DINAMIS: "Semoga harapan dan doa [Nama] terwujud, Amin" */}
       {showSuccessModal && (
         <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -289,7 +262,7 @@ export default function WishBoard({
             <div style={{ fontSize: '54px', marginBottom: '12px' }}>🤲✨💖</div>
 
             <h2 style={{ fontSize: '21px', fontWeight: '800', marginBottom: '12px', color: '#FDE047', lineHeight: '1.3' }}>
-              Semoga harapan dan doa Nurlaila terwujud, Amin
+              Semoga harapan dan doa {recipientName} terwujud, Amin
             </h2>
 
             {lastSubmittedWish && (
@@ -304,7 +277,7 @@ export default function WishBoard({
                 }}
               >
                 <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>
-                  Doa yang baru saja dikirimkan:
+                  Doa yang baru saja dipanjatkan:
                 </div>
                 <p style={{ color: '#E2E8F0', fontSize: '13.5px', fontStyle: 'italic', lineHeight: '1.4' }}>
                   "{lastSubmittedWish}"
@@ -313,7 +286,7 @@ export default function WishBoard({
             )}
 
             <p style={{ color: '#CBD5E1', fontSize: '13.5px', lineHeight: '1.55', marginBottom: '20px' }}>
-              Kami (Harizal &amp; Berlian) ikut mengaminkan dari lubuk hati yang terdalam. Semoga Allah mudahkan dan kabulkan setiap bait doa Nurlaila! 🌸✨
+              Kami ({senderName}) ikut mengaminkan dari lubuk hati yang terdalam. Semoga Allah mudahkan dan kabulkan setiap bait doa {recipientName}! 🌸✨
             </p>
 
             <button

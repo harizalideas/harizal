@@ -21,6 +21,7 @@ export async function POST(request) {
     const senderName = formData.get('sender_name')?.trim();
     const email = formData.get('email')?.trim().toLowerCase();
     const password = formData.get('password')?.trim();
+    const relationship = formData.get('relationship')?.trim() || 'parent_to_child';
     const photoFile = formData.get('photo');
 
     if (!recipientName || !senderName || !email || !password) {
@@ -127,6 +128,7 @@ export async function POST(request) {
         photo_url: photoUrl,
         email,
         password,
+        relationship,
         message: 'Doa & Ucapan Hangat Penuh Kasih',
       });
 
@@ -141,7 +143,7 @@ export async function POST(request) {
           owner_url: slug,
           instagram_url: email,
           tiktok_url: password,
-          marketplace_url: 'Doa & Ucapan Hangat Penuh Kasih',
+          marketplace_url: relationship,
         });
       dbError = umkmError;
     }

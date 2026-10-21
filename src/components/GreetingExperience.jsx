@@ -1,19 +1,28 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import CoucouMochi from '@/components/CoucouMochi';
 import DynamicNotch from '@/components/DynamicNotch';
 import WishBoard from '@/components/WishBoard';
 import FloatingBalloons from '@/components/FloatingBalloons';
+import { getGreetingContext } from '@/lib/relationships';
 
 export default function GreetingExperience({
   recipientName = 'Nurlaila',
   senderName = 'Harizal & Berlian Sekeluarga',
   photoUrl = '/kado/nurlaila.jpeg',
-  tagline = 'HARI SPESIAL PENUH CINTA',
+  tagline = null,
+  relationship = 'parent_to_child',
+  slug = '',
 }) {
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const audioRef = useRef(null);
+
+  const context = useMemo(() => {
+    return getGreetingContext(relationship, recipientName, senderName);
+  }, [relationship, recipientName, senderName]);
+
+  const activeTagline = tagline || context.tagline;
 
   const toggleMusic = () => {
     if (!audioRef.current) return;
@@ -68,7 +77,7 @@ export default function GreetingExperience({
       <section className="hero-section">
         <div className="badge-family">
           <span>🌸</span>
-          <span>{tagline.toUpperCase()}</span>
+          <span>{activeTagline.toUpperCase()}</span>
           <span>✨</span>
         </div>
 
@@ -100,6 +109,8 @@ export default function GreetingExperience({
           recipientName={recipientName}
           senderName={senderName}
           photoUrl={photoUrl}
+          relationship={relationship}
+          slug={slug}
         />
       </section>
 

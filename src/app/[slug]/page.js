@@ -57,6 +57,8 @@ export default async function DynamicSlugPage({ params }) {
         senderName="Harizal & Berlian Sekeluarga"
         photoUrl="/kado/nurlaila.jpeg"
         tagline="HARI SPESIAL UNTUK NURLAILA"
+        relationship="bestfriend_to_bestfriend"
+        slug="nurlaila"
       />
     );
   }
@@ -65,6 +67,7 @@ export default async function DynamicSlugPage({ params }) {
   let recipient = null;
   let sender = null;
   let photo = null;
+  let relationship = null;
 
   const { data: gRecord } = await supabaseAdmin
     .from('greetings')
@@ -76,6 +79,7 @@ export default async function DynamicSlugPage({ params }) {
     recipient = gRecord.recipient_name;
     sender = gRecord.sender_name;
     photo = gRecord.photo_url;
+    relationship = gRecord.relationship;
   } else {
     // Fallback to umkm_profiles table
     const { data: record } = await supabaseAdmin
@@ -88,6 +92,7 @@ export default async function DynamicSlugPage({ params }) {
       recipient = record.nama_umkm;
       sender = record.deskripsi;
       photo = record.logo_url;
+      relationship = record.marketplace_url;
     }
   }
 
@@ -128,7 +133,8 @@ export default async function DynamicSlugPage({ params }) {
       recipientName={recipient || 'Sahabat'}
       senderName={sender || 'Seseorang yang Menyayangimu'}
       photoUrl={photo || '/images/placeholder-card.svg'}
-      tagline={`HARI SPESIAL UNTUK ${recipient || 'KAMU'}`}
+      relationship={relationship}
+      slug={slug}
     />
   );
 }

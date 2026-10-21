@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import WarpText from '@/components/WarpText';
 import FloatingBalloons from '@/components/FloatingBalloons';
 import confetti from 'canvas-confetti';
+import { RELATIONSHIP_OPTIONS } from '@/lib/relationships';
 
 export default function LandingHomePage() {
   const [activeTab, setActiveTab] = useState('create'); // 'create' | 'edit'
@@ -12,6 +13,7 @@ export default function LandingHomePage() {
   const [createForm, setCreateForm] = useState({
     recipient_name: '',
     sender_name: '',
+    relationship: 'parent_to_child',
     email: '',
     password: '',
   });
@@ -67,6 +69,7 @@ export default function LandingHomePage() {
       const data = new FormData();
       data.append('recipient_name', createForm.recipient_name);
       data.append('sender_name', createForm.sender_name);
+      data.append('relationship', createForm.relationship || 'parent_to_child');
       data.append('email', createForm.email);
       data.append('password', createForm.password);
       if (photoFile) {
@@ -143,6 +146,7 @@ export default function LandingHomePage() {
       data.append('password', editAuth.password);
       data.append('recipient_name', loggedInGreeting.recipient_name);
       data.append('sender_name', loggedInGreeting.sender_name);
+      data.append('relationship', loggedInGreeting.relationship || 'parent_to_child');
       data.append('current_photo_url', loggedInGreeting.photo_url || '');
       data.append('slug', loggedInGreeting.slug || '');
       if (editPhotoFile) {
@@ -316,6 +320,39 @@ export default function LandingHomePage() {
                 value={createForm.sender_name}
                 onChange={(e) => setCreateForm({ ...createForm, sender_name: e.target.value })}
               />
+            </div>
+
+            {/* Pilihan Hubungan / Konteks Ucapan */}
+            <div>
+              <label className="form-label">
+                🤝 Hubungan / Konteks Ucapan :
+              </label>
+              <select
+                className="form-input"
+                style={{
+                  background: 'rgba(15, 23, 42, 0.95)',
+                  cursor: 'pointer',
+                  color: '#F8FAFC',
+                }}
+                value={createForm.relationship}
+                onChange={(e) => setCreateForm({ ...createForm, relationship: e.target.value })}
+              >
+                {RELATIONSHIP_OPTIONS.map((opt, idx) => {
+                  const letter = String.fromCharCode(65 + idx);
+                  return (
+                    <option
+                      key={opt.id}
+                      value={opt.id}
+                      style={{ background: '#0F172A', color: '#F8FAFC' }}
+                    >
+                      {letter}. {opt.icon} {opt.label}
+                    </option>
+                  );
+                })}
+              </select>
+              <p style={{ fontSize: '11.5px', color: '#94A3B8', marginTop: '5px', lineHeight: '1.4' }}>
+                💡 Surat cinta, kado, dan kumpulan doa akan otomatis disesuaikan secara khusus dengan hubungan yang Anda pilih.
+              </p>
             </div>
 
             {/* Upload foto yang menjadi kado */}
@@ -546,6 +583,36 @@ export default function LandingHomePage() {
                       setLoggedInGreeting({ ...loggedInGreeting, sender_name: e.target.value })
                     }
                   />
+                </div>
+
+                {/* Edit Hubungan / Konteks Ucapan */}
+                <div>
+                  <label className="form-label">🤝 Hubungan / Konteks Ucapan :</label>
+                  <select
+                    className="form-input"
+                    style={{
+                      background: 'rgba(15, 23, 42, 0.95)',
+                      cursor: 'pointer',
+                      color: '#F8FAFC',
+                    }}
+                    value={loggedInGreeting.relationship || 'parent_to_child'}
+                    onChange={(e) =>
+                      setLoggedInGreeting({ ...loggedInGreeting, relationship: e.target.value })
+                    }
+                  >
+                    {RELATIONSHIP_OPTIONS.map((opt, idx) => {
+                      const letter = String.fromCharCode(65 + idx);
+                      return (
+                        <option
+                          key={opt.id}
+                          value={opt.id}
+                          style={{ background: '#0F172A', color: '#F8FAFC' }}
+                        >
+                          {letter}. {opt.icon} {opt.label}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
 
                 {/* Edit Photo */}
