@@ -16,7 +16,7 @@ export default function LandingHomePage() {
     password: '',
   });
   const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState('/kado/nurlaila.jpeg');
+  const [photoPreview, setPhotoPreview] = useState(null);
   const fileInputRef = useRef(null);
 
   // Form State: Edit
@@ -121,7 +121,7 @@ export default function LandingHomePage() {
       }
 
       setLoggedInGreeting(result.greeting);
-      setEditPhotoPreview(result.greeting.photo_url || '/kado/nurlaila.jpeg');
+      setEditPhotoPreview(result.greeting.photo_url || '/images/placeholder-card.svg');
     } catch (err) {
       setErrorMessage(err.message);
     } finally {
@@ -333,15 +333,34 @@ export default function LandingHomePage() {
                 onClick={() => fileInputRef.current?.click()}
               >
                 {photoPreview ? (
-                  <img src={photoPreview} alt="Preview Kado" className="preview-thumbnail" />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <img src={photoPreview} alt="Preview Foto Kado" className="preview-thumbnail" />
+                    <span style={{ fontSize: '11px', color: '#10B981', fontWeight: '700' }}>
+                      ✓ Foto terpilih
+                    </span>
+                  </div>
                 ) : (
-                  <div style={{ fontSize: '32px' }}>📷</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                    <img
+                      src="/images/placeholder-card.svg"
+                      alt="Placeholder Kado"
+                      style={{
+                        width: '76px',
+                        height: '76px',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        marginBottom: '4px',
+                      }}
+                    />
+                  </div>
                 )}
-                <div style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: '600' }}>
-                  {photoFile ? photoFile.name : 'Pilih Foto Kado (Nurlaila/Foto Kenangan)'}
+                <div style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: '700' }}>
+                  {photoFile ? photoFile.name : 'Pilih Foto Kado / Kenangan'}
                 </div>
                 <div style={{ fontSize: '11px', color: '#94A3B8' }}>
-                  Ketuk untuk mengganti foto kado dalam 3D Lanyard
+                  {photoFile
+                    ? 'Ketuk untuk mengganti foto'
+                    : 'Format JPG, PNG atau WEBP · Ditampilkan dalam 3D Lanyard'}
                 </div>
               </div>
             </div>
@@ -519,11 +538,16 @@ export default function LandingHomePage() {
                     className="file-upload-dropzone"
                     onClick={() => editFileInputRef.current?.click()}
                   >
-                    {editPhotoPreview && (
-                      <img src={editPhotoPreview} alt="Foto Kado" className="preview-thumbnail" />
-                    )}
-                    <div style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: '600' }}>
-                      {editPhotoFile ? editPhotoFile.name : 'Ketuk untuk ganti foto kado'}
+                    <img
+                      src={editPhotoPreview || '/images/placeholder-card.svg'}
+                      alt="Foto Kado"
+                      className="preview-thumbnail"
+                    />
+                    <div style={{ fontSize: '13px', color: '#E2E8F0', fontWeight: '700' }}>
+                      {editPhotoFile ? editPhotoFile.name : 'Ketuk untuk mengganti foto kado'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                      Format JPG, PNG, atau WEBP
                     </div>
                   </div>
                 </div>

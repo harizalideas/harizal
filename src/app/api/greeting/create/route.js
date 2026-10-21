@@ -45,7 +45,7 @@ export async function POST(request) {
     }
 
     // 2. Handle photo upload
-    let photoUrl = '/kado/nurlaila.jpeg'; // default fallback
+    let photoUrl = '/images/placeholder-card.svg'; // default generic placeholder
     if (photoFile && typeof photoFile === 'object' && photoFile.size > 0) {
       try {
         const fileExt = photoFile.name?.split('.').pop() || 'jpg';
