@@ -34,13 +34,18 @@ export async function POST(request) {
     let baseSlug = slugify(recipientName) || 'ucapan';
     let slug = baseSlug;
 
-    // Check if slug already exists (unless it's nurlaila which is preserved)
-    const { data: existingSlugs } = await supabaseAdmin
+    // Check if slug already exists in greetings or umkm_profiles
+    const { data: gSlugs } = await supabaseAdmin
+      .from('greetings')
+      .select('slug')
+      .eq('slug', slug);
+
+    const { data: umkmSlugs } = await supabaseAdmin
       .from('umkm_profiles')
       .select('owner_url')
       .eq('owner_url', slug);
 
-    if (existingSlugs && existingSlugs.length > 0) {
+    if ((gSlugs && gSlugs.length > 0) || (umkmSlugs && umkmSlugs.length > 0)) {
       slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
     }
 
@@ -111,25 +116,40 @@ export async function POST(request) {
       console.warn('Auth creation warning:', authErr);
     }
 
-    // 4. Save greeting record in Supabase database (umkm_profiles table)
-    const { data: insertedData, error: dbError } = await supabaseAdmin
-      .from('umkm_profiles')
+    // 4. Save greeting record in Supabase database (supports greetings and umkm_profiles tables)
+    let dbError = null;
+    const { error: gError } = await supabaseAdmin
+      .from('greetings')
       .insert({
-        user_id: authUserId,
-        nama_umkm: recipientName,
-        deskripsi: senderName,
-        logo_url: photoUrl,
-        owner_url: slug,
-        instagram_url: email,
-        tiktok_url: password,
-        marketplace_url: 'Doa & Ucapan Hangat Penuh Kasih',
-      })
-      .select();
+        slug,
+        recipient_name: recipientName,
+        sender_name: senderName,
+        photo_url: photoUrl,
+        email,
+        password,
+        message: 'Doa & Ucapan Hangat Penuh Kasih',
+      });
 
-    if (dbError) {
-      console.error('Database insert error:', dbError);
+    if (gError) {
+      const { error: umkmError } = await supabaseAdmin
+        .from('umkm_profiles')
+        .insert({
+          user_id: authUserId,
+          nama_umkm: recipientName,
+          deskripsi: senderName,
+          logo_url: photoUrl,
+          owner_url: slug,
+          instagram_url: email,
+          tiktok_url: password,
+          marketplace_url: 'Doa & Ucapan Hangat Penuh Kasih',
+        });
+      dbError = umkmError;
+    }
+
+    if (dbError && gError) {
+      console.error('Database insert error:', dbError || gError);
       return NextResponse.json(
-        { error: 'Gagal menyimpan ucapan ke database: ' + dbError.message },
+        { error: 'Gagal menyimpan ucapan ke database: ' + (dbError?.message || gError?.message) },
         { status: 500 }
       );
     }

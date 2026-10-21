@@ -720,18 +720,6 @@ export default function LandingHomePage() {
         </div>
       )}
 
-      {/* Footer */}
-      <footer className="footer-wrap">
-        <p style={{ marginBottom: '6px', fontWeight: '600', color: '#F1F5F9' }}>
-          Harizal · Sampaikan Ucapan Menjadi Pengalaman ✨
-        </p>
-        <p style={{ color: '#94A3B8', fontSize: '12px', marginBottom: '8px' }}>
-          Kartu interaktif beranimasi 3D Lanyard &amp; Coucou Mochi
-        </p>
-        <div style={{ fontSize: '11px', color: '#64748B' }}>
-          Email notifikasi dikirimkan dari harizal@official.id
-        </div>
-      </footer>
     </div>
   );
 }

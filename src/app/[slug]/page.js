@@ -13,6 +13,21 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  // Check greetings table first
+  const { data: gRecord } = await supabaseAdmin
+    .from('greetings')
+    .select('*')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (gRecord) {
+    return {
+      title: `Selamat Ulang Tahun, ${gRecord.recipient_name}! 🎂💖`,
+      description: `Ucapan spesial dari ${gRecord.sender_name} untuk ${gRecord.recipient_name}.`,
+    };
+  }
+
+  // Fallback to umkm_profiles table
   const { data: record } = await supabaseAdmin
     .from('umkm_profiles')
     .select('*')
@@ -46,14 +61,37 @@ export default async function DynamicSlugPage({ params }) {
     );
   }
 
-  // Fetch from Supabase
-  const { data: record, error } = await supabaseAdmin
-    .from('umkm_profiles')
+  // Fetch from greetings table first
+  let recipient = null;
+  let sender = null;
+  let photo = null;
+
+  const { data: gRecord } = await supabaseAdmin
+    .from('greetings')
     .select('*')
-    .eq('owner_url', slug)
+    .eq('slug', slug)
     .maybeSingle();
 
-  if (!record || error) {
+  if (gRecord) {
+    recipient = gRecord.recipient_name;
+    sender = gRecord.sender_name;
+    photo = gRecord.photo_url;
+  } else {
+    // Fallback to umkm_profiles table
+    const { data: record } = await supabaseAdmin
+      .from('umkm_profiles')
+      .select('*')
+      .eq('owner_url', slug)
+      .maybeSingle();
+
+    if (record) {
+      recipient = record.nama_umkm;
+      sender = record.deskripsi;
+      photo = record.logo_url;
+    }
+  }
+
+  if (!recipient) {
     return (
       <div className="mobile-app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center' }}>
         <div className="glass-panel" style={{ padding: '32px 24px', maxWidth: '420px', width: '100%' }}>
@@ -87,10 +125,10 @@ export default async function DynamicSlugPage({ params }) {
 
   return (
     <GreetingExperience
-      recipientName={record.nama_umkm || 'Sahabat'}
-      senderName={record.deskripsi || 'Seseorang yang Menyayangimu'}
-      photoUrl={record.logo_url || '/kado/nurlaila.jpeg'}
-      tagline={`HARI SPESIAL UNTUK ${record.nama_umkm || 'KAMU'}`}
+      recipientName={recipient || 'Sahabat'}
+      senderName={sender || 'Seseorang yang Menyayangimu'}
+      photoUrl={photo || '/images/placeholder-card.svg'}
+      tagline={`HARI SPESIAL UNTUK ${recipient || 'KAMU'}`}
     />
   );
 }

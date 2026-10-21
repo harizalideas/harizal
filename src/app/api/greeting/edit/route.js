@@ -19,7 +19,39 @@ export async function POST(request) {
         );
       }
 
-      // Check record in database
+      // Check greetings table first
+      const { data: gRecords } = await supabaseAdmin
+        .from('greetings')
+        .select('*')
+        .eq('email', email)
+        .order('created_at', { ascending: false });
+
+      if (gRecords && gRecords.length > 0) {
+        const matchingG = gRecords.find(
+          (r) => r.password === password || r.password === null
+        );
+
+        if (!matchingG) {
+          return NextResponse.json(
+            { error: 'Password yang Anda masukkan salah. Mohon periksa kembali email Anda.' },
+            { status: 401 }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          greeting: {
+            id: matchingG.id,
+            recipient_name: matchingG.recipient_name,
+            sender_name: matchingG.sender_name,
+            photo_url: matchingG.photo_url,
+            slug: matchingG.slug,
+            email: matchingG.email,
+          },
+        });
+      }
+
+      // Fallback: Check umkm_profiles table
       const { data: records, error: dbError } = await supabaseAdmin
         .from('umkm_profiles')
         .select('*')
@@ -75,7 +107,95 @@ export async function POST(request) {
       );
     }
 
-    // Verify existing record
+    // Check greetings table first
+    const { data: gRecords } = await supabaseAdmin
+      .from('greetings')
+      .select('*')
+      .eq('email', email);
+
+    const targetG = gRecords?.find((r) => r.password === password || !r.password);
+
+    if (targetG) {
+      let finalPhotoUrl = currentPhotoUrl || targetG.photo_url || '/images/placeholder-card.svg';
+
+      // Handle new photo if provided
+      if (photoFile && typeof photoFile === 'object' && photoFile.size > 0) {
+        try {
+          const fileExt = photoFile.name?.split('.').pop() || 'jpg';
+          const fileName = `gifts/${slug || targetG.slug}-${Date.now()}.${fileExt}`;
+          const arrayBuffer = await photoFile.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+
+          const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+            .from('kado-gifts')
+            .upload(fileName, buffer, {
+              contentType: photoFile.type || 'image/jpeg',
+              upsert: true,
+            });
+
+          if (!uploadError) {
+            const { data: publicUrlData } = supabaseAdmin.storage
+              .from('kado-gifts')
+              .getPublicUrl(fileName);
+            finalPhotoUrl = publicUrlData.publicUrl;
+          }
+        } catch (err) {
+          console.error('Error uploading replacement photo:', err);
+        }
+      }
+
+      // Update greetings table
+      const { error: updateError } = await supabaseAdmin
+        .from('greetings')
+        .update({
+          recipient_name: recipientName || targetG.recipient_name,
+          sender_name: senderName || targetG.sender_name,
+          photo_url: finalPhotoUrl,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', targetG.id);
+
+      if (updateError) {
+        return NextResponse.json(
+          { error: 'Gagal memperbarui data: ' + updateError.message },
+          { status: 500 }
+        );
+      }
+
+      const host = request.headers.get('host') || 'harizal.vercel.app';
+      const protocol = host.includes('localhost') ? 'http' : 'https';
+      const activeSlug = targetG.slug;
+      const greetingUrl = `${protocol}://${host}/${activeSlug}`;
+
+      // Send update notification email via Resend
+      try {
+        await sendGreetingCreatedEmail({
+          toEmail: email,
+          recipientName: recipientName || targetG.recipient_name,
+          senderName: senderName || targetG.sender_name,
+          greetingUrl,
+          password,
+          isEdit: true,
+        });
+      } catch (mailErr) {
+        console.warn('Update email notice failed:', mailErr);
+      }
+
+      return NextResponse.json({
+        success: true,
+        greetingUrl,
+        slug: activeSlug,
+        greeting: {
+          id: targetG.id,
+          recipient_name: recipientName || targetG.recipient_name,
+          sender_name: senderName || targetG.sender_name,
+          photo_url: finalPhotoUrl,
+          slug: activeSlug,
+        },
+      });
+    }
+
+    // Fallback: Check umkm_profiles table
     const { data: records } = await supabaseAdmin
       .from('umkm_profiles')
       .select('*')
@@ -89,7 +209,7 @@ export async function POST(request) {
       );
     }
 
-    let finalPhotoUrl = currentPhotoUrl || targetRecord.logo_url || '/kado/nurlaila.jpeg';
+    let finalPhotoUrl = currentPhotoUrl || targetRecord.logo_url || '/images/placeholder-card.svg';
 
     // Handle new photo if provided
     if (photoFile && typeof photoFile === 'object' && photoFile.size > 0) {
