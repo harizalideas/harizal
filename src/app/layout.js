@@ -1,15 +1,15 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Selamat Ulang Tahun Harizal! 🎂✨',
-  description: 'Website interaktif ucapan selamat ulang tahun untuk Harizal dengan animasi karakter Coucou (Mochi) yang responsif terhadap sentuhan dan kursor.',
-  keywords: ['Selamat Ulang Tahun Harizal', 'Birthday Harizal', 'Coucou Mochi', 'Next.js Interactive'],
-  authors: [{ name: 'Harizal Friends' }],
+  title: 'Selamat Ulang Tahun, Nurlaila! 🎂💖',
+  description: 'Ucapan hangat & doa penuh berkah dari Harizal & Berlian sekeluarga untuk Nurlaila tercinta. Sentuh Mochi, tiup lilinnya, dan dengarkan lagunya!',
+  keywords: ['Selamat Ulang Tahun Nurlaila', 'Birthday Nurlaila', 'Harizal Berlian', 'Coucou Mochi'],
+  authors: [{ name: 'Harizal & Berlian' }],
   openGraph: {
-    title: 'Selamat Ulang Tahun Harizal! 🎂✨',
-    description: 'Beri ucapan, sentuh Mochi yang lucu, tiup lilinnya, dan rayakan hari bahagia ini bersama!',
+    title: 'Selamat Ulang Tahun, Nurlaila! 🎂💖',
+    description: 'Ucapan hangat & doa penuh berkah dari Harizal & Berlian sekeluarga untuk Nurlaila tercinta. Sentuh Mochi, tiup lilinnya, dan dengarkan lagunya!',
     url: 'https://harizal.vercel.app',
-    siteName: 'Harizal Birthday Special',
+    siteName: 'Hari Spesial Nurlaila',
     type: 'website',
   },
 };

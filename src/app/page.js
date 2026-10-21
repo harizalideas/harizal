@@ -1,110 +1,111 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CoucouMochi from '@/components/CoucouMochi';
 import DynamicNotch from '@/components/DynamicNotch';
 import WishBoard from '@/components/WishBoard';
 import FloatingBalloons from '@/components/FloatingBalloons';
 
 export default function HomePage() {
-  const [recipientName, setRecipientName] = useState('Harizal');
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [isIslandExpanded, setIsIslandExpanded] = useState(false);
+  const [recipientName] = useState('Nurlaila');
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audioRef = useRef(null);
+
+  // Toggle MP3 music
+  const toggleMusic = () => {
+    if (!audioRef.current) return;
+
+    if (isMusicPlaying) {
+      audioRef.current.pause();
+      setIsMusicPlaying(false);
+    } else {
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsMusicPlaying(true);
+        })
+        .catch(() => {
+          // Autoplay policy prevented immediate playback
+        });
+    }
+  };
+
+  // Optional: Listen for first touch on screen to optionally prime audio
+  useEffect(() => {
+    const handleFirstTouch = () => {
+      // Audio element initialized on user gesture
+    };
+    window.addEventListener('touchstart', handleFirstTouch, { once: true });
+    return () => {
+      window.removeEventListener('touchstart', handleFirstTouch);
+    };
+  }, []);
 
   return (
-    <main style={{ minHeight: '100vh', position: 'relative' }}>
-      {/* Background Floating Balloons */}
+    <div className="mobile-app-container">
+      {/* Hidden Audio element for the user's specific MP3 */}
+      <audio
+        ref={audioRef}
+        src="/audio/happy-birthday.mp3"
+        preload="auto"
+        loop
+        onEnded={() => setIsMusicPlaying(false)}
+      />
+
+      {/* Floating Background Balloons */}
       <FloatingBalloons />
 
-      {/* Top Apple Mac Notch / Dynamic Island */}
+      {/* Apple Dynamic Island Top Bar */}
       <DynamicNotch
-        isExpanded={isIslandExpanded}
-        onToggle={() => setIsIslandExpanded((prev) => !prev)}
+        isMusicPlaying={isMusicPlaying}
+        onToggleMusic={toggleMusic}
         recipientName={recipientName}
       />
 
-      {/* Main Hero Header */}
+      {/* Hero Header */}
       <section className="hero-section">
-        <div className="badge-birthday">
-          <span>🎂</span>
-          <span>HARI SPESIAL ULANG TAHUN</span>
+        <div className="badge-family">
+          <span>🌸</span>
+          <span>HARI SPESIAL UNTUK NURLAILA</span>
           <span>✨</span>
         </div>
 
         <h1 className="hero-title">
-          Selamat Ulang Tahun,{' '}
-          {isEditingName ? (
-            <input
-              type="text"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-              onBlur={() => setIsEditingName(false)}
-              onKeyDown={(e) => e.key === 'Enter' && setIsEditingName(false)}
-              autoFocus
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid #FDE047',
-                borderRadius: '8px',
-                color: '#FDE047',
-                fontFamily: 'inherit',
-                fontSize: 'inherit',
-                fontWeight: 'inherit',
-                textAlign: 'center',
-                width: 'auto',
-                maxWidth: '300px',
-                display: 'inline-block',
-                outline: 'none',
-              }}
-            />
-          ) : (
-            <span
-              onClick={() => setIsEditingName(true)}
-              style={{ cursor: 'pointer', borderBottom: '2px dashed rgba(253, 224, 71, 0.4)' }}
-              title="Klik untuk mengubah nama jika diinginkan"
-            >
-              {recipientName}!
-            </span>
-          )}
+          Selamat Ulang Tahun, {recipientName}! 🎂
         </h1>
 
-        <p className="hero-subtitle">
-          Selamat bertambah usia! Semoga panjang umur, senantiasa dilimpahkan kesehatan, kebahagiaan, kemudahan dalam setiap langkah, serta terkabul segala impian dan cita-cita.
-        </p>
+        <div className="hero-subtitle">
+          Doa &amp; Ucapan Hangat Penuh Kasih
+        </div>
+
+        <div className="hero-family-tag">
+          Dari Harizal &amp; Berlian Sekeluarga ❤️
+        </div>
 
         {/* Coucou Mochi Interactive Stage */}
         <div className="mochi-stage-container">
-          <div className="glass-panel" style={{ padding: '24px 16px 20px' }}>
+          <div className="glass-panel" style={{ padding: '18px 12px 16px' }}>
             <CoucouMochi
               recipientName={recipientName}
-              isIslandExpanded={isIslandExpanded}
-              onToggleExpand={() => setIsIslandExpanded((prev) => !prev)}
+              isMusicPlaying={isMusicPlaying}
+              onToggleMusic={toggleMusic}
             />
           </div>
         </div>
 
-        {/* Interactive Wish Board and Gift Box */}
+        {/* Heartfelt Letter, Surprise Gift & Wish Board */}
         <WishBoard recipientName={recipientName} />
       </section>
 
       {/* Footer */}
       <footer className="footer-wrap">
-        <p style={{ marginBottom: '8px' }}>
-          Dibuat dengan segenap doa terbaik untuk{' '}
-          <strong style={{ color: '#F8FAFC' }}>{recipientName}</strong> 🎂🎉
+        <p style={{ marginBottom: '6px', fontWeight: '600', color: '#F1F5F9' }}>
+          Dipersembahkan dengan segenap cinta &amp; doa untuk Nurlaila 🌸✨
         </p>
-        <p style={{ fontSize: '12px', opacity: 0.75 }}>
-          Animasi karakter Mochi terinspirasi dari proyek open-source{' '}
-          <a
-            href="https://github.com/louis-cfm/coucou"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-link"
-          >
-            Coucou (Louis Raillé)
-          </a>
-          .
+        <p style={{ color: '#94A3B8', fontSize: '12px' }}>
+          Keluarga Harizal &amp; Berlian · 2026
         </p>
       </footer>
-    </main>
+    </div>
   );
 }

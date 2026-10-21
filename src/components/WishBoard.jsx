@@ -7,34 +7,33 @@ import { birthdaySynth } from './AudioSynth';
 const DEFAULT_WISHES = [
   {
     id: 1,
-    name: 'Keluarga & Sahabat',
-    text: 'Selamat ulang tahun Harizal! Semoga panjang umur, selalu diberikan kesehatan, kelimpahan rezeki, serta kebahagiaan dunia akhirat! 🤲🌟',
+    name: 'Berlian & Harizal ❤️',
+    text: 'Selamat ulang tahun Nurlaila sayang! Makasih udah selalu jadi sahabat terbaik dan keluarga buat kami. Sehat terus, bahagia selalu, dan lancar semua urusannya ya! 🤲🌸',
     time: 'Hari ini',
   },
   {
     id: 2,
-    name: 'Rekan Kreatif & Tech Squad',
-    text: 'Barakallahu fii umrik! Sukses terus untuk setiap proyek, inovasi, dan mimpi-mimpi besarnya! Terus berkarya dan menginspirasi! 🚀💻',
+    name: 'Keluarga Besar Harizal & Berlian',
+    text: 'Barakallahu fii umrik Nurlaila! Semoga di usia yang baru ini Allah limpahkan berkah berlipat ganda, rezeki melimpah, serta kebahagiaan dunia akhirat! 🌟🎂',
     time: 'Hari ini',
   },
   {
     id: 3,
     name: 'Mochi (Coucou)',
-    text: 'Horeee selamat ulang tahun! Jangan lupa tersenyum setiap hari ya, Mochi selalu siap nemenin kamu di layar! 🐾🎂',
+    text: 'Horeee selamat ulang tahun Kak Nurlaila! Mochi ikut seneng banget hari ini! Jangan lupa tersenyum yaa! 🐾✨',
     time: 'Baru saja',
   },
 ];
 
-export default function WishBoard({ recipientName = 'Harizal' }) {
+export default function WishBoard({ recipientName = 'Nurlaila' }) {
   const [wishes, setWishes] = useState(DEFAULT_WISHES);
   const [author, setAuthor] = useState('');
   const [message, setMessage] = useState('');
   const [isGiftOpen, setIsGiftOpen] = useState(false);
 
-  // Load stored wishes on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('harizal_birthday_wishes');
+      const stored = localStorage.getItem('nurlaila_birthday_wishes');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -58,7 +57,7 @@ export default function WishBoard({ recipientName = 'Harizal' }) {
     const updated = [newWish, ...wishes];
     setWishes(updated);
     try {
-      localStorage.setItem('harizal_birthday_wishes', JSON.stringify(updated));
+      localStorage.setItem('nurlaila_birthday_wishes', JSON.stringify(updated));
     } catch {}
 
     setAuthor('');
@@ -66,7 +65,7 @@ export default function WishBoard({ recipientName = 'Harizal' }) {
 
     birthdaySynth.playChimeSuccess();
     confetti({
-      particleCount: 70,
+      particleCount: 75,
       spread: 75,
       origin: { y: 0.7 },
       colors: ['#FF5A5F', '#FFD166', '#06D6A0', '#118AB2', '#7928CA'],
@@ -84,13 +83,65 @@ export default function WishBoard({ recipientName = 'Harizal' }) {
   };
 
   return (
-    <div className="features-grid">
-      {/* 1. Interactive Wish Wall */}
-      <div className="card-item glass-panel">
-        <div className="card-icon-box">💌</div>
-        <h3 className="card-title">Papan Doa & Harapan</h3>
-        <p className="card-desc">
-          Tinggalkan pesan ucapan hangat dan doa terbaik untuk {recipientName} di hari spesialnya ini.
+    <div style={{ width: '100%' }}>
+      {/* 1. Special Heartfelt Letter from Harizal & Berlian */}
+      <div className="special-letter-card glass-panel">
+        <div className="letter-header">
+          <div className="letter-avatar-couple">💌</div>
+          <div>
+            <div className="letter-title">Pesan Hangat Dari Kami</div>
+            <div className="letter-subtitle">Harizal & Berlian Sekeluarga</div>
+          </div>
+        </div>
+
+        <div className="letter-body">
+          <p>
+            <strong>Untuk Nurlaila Tersayang,</strong>
+          </p>
+          <p>
+            Di hari yang penuh kebahagiaan ini, kami sekeluarga ingin mengucapkan <em>Selamat Ulang Tahun</em> yang paling hangat dan penuh berkah.
+          </p>
+          <p>
+            Bagi kami (Harizal & Berlian), Nurlaila bukan sekadar sahabat, tapi sudah menjadi bagian dari keluarga kami sendiri yang begitu berharga dan kami sayangi.
+          </p>
+          <p>
+            Terima kasih atas segala tawa, ketulusan, dan kebaikan yang selalu mengalir selama ini. Semoga Allah SWT senantiasa menganugerahkan kesehatan, umur yang penuh berkah, kebahagiaan lahir batin, kelapangan rezeki, serta kemudahan dalam menggapai setiap impian dan cita-cita Nurlaila.
+          </p>
+        </div>
+
+        <div className="letter-signature">
+          Peluk hangat & doa tulus, Harizal & Berlian ❤️
+        </div>
+      </div>
+
+      {/* 2. Interactive Surprise Gift Box */}
+      <div className="gift-card glass-panel">
+        <div className="gift-box-icon">🎁</div>
+        <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '6px' }}>
+          Kado Kejutan Untuk Nurlaila
+        </h3>
+        <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', lineHeight: '1.5' }}>
+          Ada sebuah kartu penghargaan & doa spesial yang disiapkan khusus untuk Nurlaila. Ketuk tombol di bawah untuk membukanya!
+        </p>
+
+        <button
+          type="button"
+          className="btn-interactive btn-primary"
+          style={{ width: '100%', maxWidth: '280px' }}
+          onClick={handleOpenGift}
+        >
+          ✨ Buka Kado Kejutan!
+        </button>
+      </div>
+
+      {/* 3. Wish Wall & Personal Prayer */}
+      <div className="wish-card glass-panel">
+        <h3 style={{ fontSize: '17px', fontWeight: '700', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>🌸</span>
+          <span>Papan Doa & Harapan</span>
+        </h3>
+        <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '14px', lineHeight: '1.5' }}>
+          Tinggalkan doa indah untuk Nurlaila atau tulis harapan pribadimu di hari ulang tahun ini:
         </p>
 
         <div className="wish-list">
@@ -109,7 +160,7 @@ export default function WishBoard({ recipientName = 'Harizal' }) {
           <input
             type="text"
             className="input-glass"
-            placeholder="Nama Anda..."
+            placeholder="Nama Pengirim..."
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             maxLength={35}
@@ -118,41 +169,23 @@ export default function WishBoard({ recipientName = 'Harizal' }) {
           <textarea
             className="input-glass"
             rows={2}
-            placeholder={`Tulis doa untuk ${recipientName}...`}
+            placeholder="Tulis doa atau harapan terbaik..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             maxLength={250}
             required
           />
-          <button type="submit" className="btn-interactive btn-primary" style={{ justifyContent: 'center' }}>
-            💌 Kirim Ucapan & Doa
+          <button
+            type="submit"
+            className="btn-interactive btn-primary"
+            style={{ width: '100%', marginTop: '4px' }}
+          >
+            💌 Kirim Doa & Harapan
           </button>
         </form>
       </div>
 
-      {/* 2. Interactive Surprise Gift Box */}
-      <div className="card-item glass-panel">
-        <div className="card-icon-box">🎁</div>
-        <h3 className="card-title">Kado Spesial Hari Ini</h3>
-        <p className="card-desc">
-          Ada sebuah kejutan spesial yang disiapkan khusus untuk {recipientName}. Ketuk kado di bawah untuk membukanya!
-        </p>
-
-        <div className="gift-box-wrapper" onClick={handleOpenGift} title="Klik untuk membuka kado!">
-          <div className="gift-box-icon">🎁</div>
-          <button type="button" className="btn-interactive btn-primary" style={{ marginTop: '16px' }}>
-            ✨ Buka Kado Kejutan
-          </button>
-        </div>
-
-        <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <p style={{ fontSize: '13px', color: '#94A3B8', textAlign: 'center' }}>
-            🎂 Setiap detik adalah berkah, setiap tahun adalah babak baru penuh keajaiban.
-          </p>
-        </div>
-      </div>
-
-      {/* Modal Kado Terbuka */}
+      {/* Surprise Modal */}
       {isGiftOpen && (
         <div className="modal-overlay" onClick={() => setIsGiftOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -164,14 +197,14 @@ export default function WishBoard({ recipientName = 'Harizal' }) {
               ✕
             </button>
 
-            <div style={{ fontSize: '56px', marginBottom: '14px' }}>🏆👑🎂</div>
+            <div style={{ fontSize: '50px', marginBottom: '10px' }}>👑🌸💖</div>
 
-            <h2 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px', color: '#FDE047' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '8px', color: '#FDE047' }}>
               Selamat Ulang Tahun, {recipientName}!
             </h2>
 
-            <p style={{ color: '#E2E8F0', fontSize: '15px', lineHeight: '1.6', marginBottom: '20px' }}>
-              Selamat melangkah ke usia yang baru! Semoga langkahmu senantiasa dipenuhi keberkahan, kemudahan dalam setiap urusan, kesehatan yang paripurna, keluarga yang bahagia, serta dikelilingi orang-orang yang tulus mendukungmu.
+            <p style={{ color: '#E2E8F0', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px' }}>
+              "Sahabat sejati adalah keluarga yang kita pilih dengan hati. Semoga di usiamu yang baru ini, setiap langkahmu dipenuhi keberkahan, senyumanmu selalu merekah, dan hari-harimu selalu dikelilingi cinta kasih."
             </p>
 
             <div
@@ -179,33 +212,36 @@ export default function WishBoard({ recipientName = 'Harizal' }) {
                 background: 'rgba(251, 191, 36, 0.1)',
                 border: '1px dashed rgba(251, 191, 36, 0.4)',
                 borderRadius: '16px',
-                padding: '16px',
-                marginBottom: '20px',
+                padding: '14px',
+                marginBottom: '18px',
               }}
             >
-              <div style={{ fontSize: '13px', fontWeight: '700', color: '#FBBF24', marginBottom: '4px' }}>
-                🌟 KODE KEBERUNTUNGAN HARI INI
+              <div style={{ fontSize: '11.5px', fontWeight: '700', color: '#FBBF24', marginBottom: '3px' }}>
+                🌟 KARTU PENGHARGAAN KELUARGA
               </div>
-              <div style={{ fontSize: '20px', fontWeight: '800', letterSpacing: '0.05em' }}>
-                HARI-BAHAGIA-{new Date().getFullYear()}
+              <div style={{ fontSize: '16px', fontWeight: '800', color: '#FFF' }}>
+                SAHABAT TERBAIK SEPANJANG MASA
+              </div>
+              <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '3px' }}>
+                Diberikan dengan penuh kasih oleh Harizal & Berlian
               </div>
             </div>
 
             <button
               type="button"
               className="btn-interactive btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
+              style={{ width: '100%' }}
               onClick={() => {
                 birthdaySynth.playChimeSuccess();
                 confetti({
                   particleCount: 80,
-                  spread: 90,
+                  spread: 85,
                   origin: { y: 0.5 },
                 });
                 setIsGiftOpen(false);
               }}
             >
-              Terima Kasih Banyak! 💖
+              Aamiin, Terima Kasih Banyak! 💖
             </button>
           </div>
         </div>
