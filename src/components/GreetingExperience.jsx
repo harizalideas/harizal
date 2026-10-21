@@ -10,7 +10,7 @@ import { getGreetingContext } from '@/lib/relationships';
 export default function GreetingExperience({
   recipientName = 'Nurlaila',
   senderName = 'Harizal & Berlian Sekeluarga',
-  photoUrl = '/kado/nurlaila.jpeg',
+  photoUrl = 'https://xymznvulpheibgtiyzwx.supabase.co/storage/v1/object/public/kado-gifts/gifts/nurlaila.jpeg',
   tagline = null,
   relationship = 'parent_to_child',
   slug = '',

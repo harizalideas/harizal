@@ -10,8 +10,10 @@ export default function NurlailaPage() {
     <GreetingExperience
       recipientName="Nurlaila"
       senderName="Harizal & Berlian Sekeluarga"
-      photoUrl="/kado/nurlaila.jpeg"
+      photoUrl="https://xymznvulpheibgtiyzwx.supabase.co/storage/v1/object/public/kado-gifts/gifts/nurlaila.jpeg"
       tagline="HARI SPESIAL UNTUK NURLAILA"
+      relationship="bestfriend_to_bestfriend"
+      slug="nurlaila"
     />
   );
 }
