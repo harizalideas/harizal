@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const fallbackKey = Buffer.from('cmVfSnh6eXRXOFFfM3pXeWVOYWF3bWZANDdzdnZWVVBobWgy', 'base64').toString('utf-8');
+const fallbackKey = Buffer.from('cmVfSnh6eXRXOFFfM3pXeWVOYWF3bWZBNDdzdnZWVVBobWgy', 'base64').toString('utf-8');
 const resendApiKey = process.env.RESEND_API_KEY || fallbackKey;
 const resendFrom = process.env.RESEND_FROM || 'harizal@official.id';
 
