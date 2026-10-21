@@ -31,23 +31,32 @@ export async function POST(request) {
       );
     }
 
-    // 1. Generate unique slug
-    let baseSlug = slugify(recipientName) || 'ucapan';
-    let slug = baseSlug;
+    // 1. Generate unique slug with 4-digit unique code (e.g. jane-doe-4829)
+    const baseSlug = slugify(recipientName) || 'ucapan';
+    let random4Digits = Math.floor(1000 + Math.random() * 9000);
+    let slug = `${baseSlug}-${random4Digits}`;
 
-    // Check if slug already exists in greetings or umkm_profiles
-    const { data: gSlugs } = await supabaseAdmin
-      .from('greetings')
-      .select('slug')
-      .eq('slug', slug);
+    // Ensure absolute uniqueness against greetings and umkm_profiles
+    let isUnique = false;
+    let attempts = 0;
+    while (!isUnique && attempts < 5) {
+      const { data: gSlugs } = await supabaseAdmin
+        .from('greetings')
+        .select('slug')
+        .eq('slug', slug);
 
-    const { data: umkmSlugs } = await supabaseAdmin
-      .from('umkm_profiles')
-      .select('owner_url')
-      .eq('owner_url', slug);
+      const { data: umkmSlugs } = await supabaseAdmin
+        .from('umkm_profiles')
+        .select('owner_url')
+        .eq('owner_url', slug);
 
-    if ((gSlugs && gSlugs.length > 0) || (umkmSlugs && umkmSlugs.length > 0)) {
-      slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+      if ((!gSlugs || gSlugs.length === 0) && (!umkmSlugs || umkmSlugs.length === 0)) {
+        isUnique = true;
+      } else {
+        random4Digits = Math.floor(1000 + Math.random() * 9000);
+        slug = `${baseSlug}-${random4Digits}`;
+        attempts++;
+      }
     }
 
     // 2. Handle photo upload
