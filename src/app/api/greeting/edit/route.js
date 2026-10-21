@@ -6,7 +6,7 @@ export async function POST(request) {
   try {
     const contentType = request.headers.get('content-type') || '';
     
-    // 1. Handling Login / Fetch Greeting Data
+    // 1. Handling Login / Fetch Greeting Data (Returns all cards for this user)
     if (contentType.includes('application/json')) {
       const body = await request.json();
       const email = body.email?.trim().toLowerCase();
@@ -27,28 +27,32 @@ export async function POST(request) {
         .order('created_at', { ascending: false });
 
       if (gRecords && gRecords.length > 0) {
-        const matchingG = gRecords.find(
+        const matchingGList = gRecords.filter(
           (r) => r.password === password || r.password === null
         );
 
-        if (!matchingG) {
+        if (matchingGList.length === 0) {
           return NextResponse.json(
             { error: 'Password yang Anda masukkan salah. Mohon periksa kembali email Anda.' },
             { status: 401 }
           );
         }
 
+        const mappedGreetings = matchingGList.map((g) => ({
+          id: g.id,
+          recipient_name: g.recipient_name,
+          sender_name: g.sender_name,
+          photo_url: g.photo_url,
+          relationship: g.relationship || 'parent_to_child',
+          slug: g.slug,
+          email: g.email,
+          created_at: g.created_at,
+        }));
+
         return NextResponse.json({
           success: true,
-          greeting: {
-            id: matchingG.id,
-            recipient_name: matchingG.recipient_name,
-            sender_name: matchingG.sender_name,
-            photo_url: matchingG.photo_url,
-            relationship: matchingG.relationship || 'parent_to_child',
-            slug: matchingG.slug,
-            email: matchingG.email,
-          },
+          greetings: mappedGreetings,
+          greeting: mappedGreetings[0], // primary / latest card
         });
       }
 
@@ -67,33 +71,38 @@ export async function POST(request) {
       }
 
       // Verify password
-      const matchingRecord = records.find(
+      const matchingRecordList = records.filter(
         (r) => r.tiktok_url === password || r.tiktok_url === null
       );
 
-      if (!matchingRecord) {
+      if (matchingRecordList.length === 0) {
         return NextResponse.json(
           { error: 'Password yang Anda masukkan salah. Mohon periksa kembali email Anda.' },
           { status: 401 }
         );
       }
 
+      const mappedRecords = matchingRecordList.map((r) => ({
+        id: r.id,
+        recipient_name: r.nama_umkm,
+        sender_name: r.deskripsi,
+        photo_url: r.logo_url,
+        relationship: r.marketplace_url || 'parent_to_child',
+        slug: r.owner_url,
+        email: r.instagram_url,
+        created_at: r.created_at,
+      }));
+
       return NextResponse.json({
         success: true,
-        greeting: {
-          id: matchingRecord.id,
-          recipient_name: matchingRecord.nama_umkm,
-          sender_name: matchingRecord.deskripsi,
-          photo_url: matchingRecord.logo_url,
-          relationship: matchingRecord.marketplace_url || 'parent_to_child',
-          slug: matchingRecord.owner_url,
-          email: matchingRecord.instagram_url,
-        },
+        greetings: mappedRecords,
+        greeting: mappedRecords[0],
       });
     }
 
-    // 2. Handling Update with FormData (supports new photo upload and relationship change)
+    // 2. Handling Update with FormData (supports new photo upload, relationship, and specific card id/slug)
     const formData = await request.formData();
+    const id = formData.get('id')?.trim();
     const email = formData.get('email')?.trim().toLowerCase();
     const password = formData.get('password')?.trim();
     const recipientName = formData.get('recipient_name')?.trim();
@@ -116,7 +125,12 @@ export async function POST(request) {
       .select('*')
       .eq('email', email);
 
-    const targetG = gRecords?.find((r) => r.password === password || !r.password);
+    // Target the specific greeting by id or slug first, fallback to first matching password
+    const targetG = gRecords?.find(
+      (r) =>
+        ((id && r.id === id) || (slug && r.slug === slug)) &&
+        (r.password === password || !r.password)
+    ) || gRecords?.find((r) => r.password === password || !r.password);
 
     if (targetG) {
       let finalPhotoUrl = currentPhotoUrl || targetG.photo_url || '/images/placeholder-card.svg';
@@ -206,7 +220,12 @@ export async function POST(request) {
       .select('*')
       .eq('instagram_url', email);
 
-    const targetRecord = records?.find((r) => r.tiktok_url === password || !r.tiktok_url);
+    const targetRecord = records?.find(
+      (r) =>
+        ((id && r.id === id) || (slug && r.owner_url === slug)) &&
+        (r.tiktok_url === password || !r.tiktok_url)
+    ) || records?.find((r) => r.tiktok_url === password || !r.tiktok_url);
+
     if (!targetRecord) {
       return NextResponse.json(
         { error: 'Verifikasi gagal. Email atau password tidak sesuai.' },

@@ -28,6 +28,7 @@ export default function LandingHomePage() {
     email: '',
     password: '',
   });
+  const [userGreetingsList, setUserGreetingsList] = useState([]);
   const [loggedInGreeting, setLoggedInGreeting] = useState(null);
   const [editPhotoFile, setEditPhotoFile] = useState(null);
   const [editPhotoPreview, setEditPhotoPreview] = useState(null);
@@ -125,8 +126,15 @@ export default function LandingHomePage() {
         throw new Error(result.error || 'Gagal memuat kartu ucapan.');
       }
 
-      setLoggedInGreeting(result.greeting);
-      setEditPhotoPreview(result.greeting.photo_url || '/images/placeholder-card.svg');
+      const list = result.greetings || (result.greeting ? [result.greeting] : []);
+      setUserGreetingsList(list);
+
+      if (list.length === 1) {
+        setLoggedInGreeting(list[0]);
+        setEditPhotoPreview(list[0].photo_url || '/images/placeholder-card.svg');
+      } else {
+        setLoggedInGreeting(null); // Show card selector
+      }
     } catch (err) {
       setErrorMessage(err.message);
     } finally {
@@ -142,6 +150,7 @@ export default function LandingHomePage() {
 
     try {
       const data = new FormData();
+      data.append('id', loggedInGreeting.id || '');
       data.append('email', editAuth.email);
       data.append('password', editAuth.password);
       data.append('recipient_name', loggedInGreeting.recipient_name);
@@ -162,6 +171,11 @@ export default function LandingHomePage() {
       if (!res.ok || !result.success) {
         throw new Error(result.error || 'Gagal memperbarui kartu ucapan.');
       }
+
+      setLoggedInGreeting(result.greeting);
+      setUserGreetingsList((prev) =>
+        prev.map((g) => (g.slug === result.slug || g.id === result.greeting.id ? result.greeting : g))
+      );
 
       setSuccessData({
         title: '✨ Perubahan Berhasil Disimpan!',
@@ -475,7 +489,7 @@ export default function LandingHomePage() {
         {/* TAB 2: EDIT YANG PERNAH DIBUAT */}
         {activeTab === 'edit' && (
           <div>
-            {!loggedInGreeting ? (
+            {userGreetingsList.length === 0 ? (
               <form onSubmit={handleEditLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ textAlign: 'center', marginBottom: '6px' }}>
                   <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#F8FAFC', marginBottom: '4px' }}>
@@ -529,6 +543,116 @@ export default function LandingHomePage() {
                   {isLoading ? 'Memeriksa Akun...' : '🔑 Buka & Edit Kartu Ucapan'}
                 </button>
               </form>
+            ) : !loggedInGreeting ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#F8FAFC', marginBottom: '2px' }}>
+                      📋 Kartu Ucapan Anda ({userGreetingsList.length})
+                    </h2>
+                    <p style={{ fontSize: '12px', color: '#94A3B8' }}>
+                      Pilih kartu yang ingin Anda ubah atau perbarui:
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserGreetingsList([]);
+                      setLoggedInGreeting(null);
+                    }}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: 'none',
+                      color: '#94A3B8',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      fontSize: '11.5px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    🚪 Ganti Akun
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {userGreetingsList.map((card) => (
+                    <div
+                      key={card.id || card.slug}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '14px',
+                        padding: '12px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '12px',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                        <img
+                          src={card.photo_url || '/images/placeholder-card.svg'}
+                          alt={card.recipient_name}
+                          style={{
+                            width: '46px',
+                            height: '46px',
+                            borderRadius: '10px',
+                            objectFit: 'cover',
+                            border: '1px solid rgba(255, 255, 255, 0.15)',
+                          }}
+                        />
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontSize: '14px', fontWeight: '700', color: '#F8FAFC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {card.recipient_name}
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#94A3B8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            Dari: {card.sender_name} · /{card.slug}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setLoggedInGreeting(card);
+                            setEditPhotoPreview(card.photo_url || '/images/placeholder-card.svg');
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #38BDF8, #0284C7)',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            padding: '8px 14px',
+                            borderRadius: '10px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          ✏️ Edit
+                        </button>
+                        <a
+                          href={`/${card.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            color: '#CBD5E1',
+                            padding: '8px 12px',
+                            borderRadius: '10px',
+                            fontSize: '12px',
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          👁️
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : (
               <form onSubmit={handleUpdateGreeting} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
@@ -540,21 +664,43 @@ export default function LandingHomePage() {
                       Slug: /{loggedInGreeting.slug}
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setLoggedInGreeting(null)}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: 'none',
-                      color: '#94A3B8',
-                      padding: '4px 10px',
-                      borderRadius: '8px',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Keluar
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {userGreetingsList.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setLoggedInGreeting(null)}
+                        style={{
+                          background: 'rgba(56, 189, 248, 0.15)',
+                          border: '1px solid rgba(56, 189, 248, 0.3)',
+                          color: '#38BDF8',
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ← Daftar Kartu
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserGreetingsList([]);
+                        setLoggedInGreeting(null);
+                      }}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        border: 'none',
+                        color: '#94A3B8',
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Keluar
+                    </button>
+                  </div>
                 </div>
 
                 {/* Edit Recipient Name */}
