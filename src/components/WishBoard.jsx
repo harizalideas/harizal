@@ -26,10 +26,14 @@ const DEFAULT_WISHES = [
   },
 ];
 
-export default function WishBoard({ recipientName = 'Nurlaila' }) {
+export default function WishBoard({
+  recipientName = 'Nurlaila',
+  senderName = 'Harizal & Berlian Sekeluarga',
+  photoUrl = '/kado/nurlaila.jpeg',
+}) {
   const [wishes, setWishes] = useState(DEFAULT_WISHES);
   const [message, setMessage] = useState('');
-  const [isGiftOpen, setIsGiftOpen] = useState(true); // Open by default or revealable
+  const [isGiftOpen, setIsGiftOpen] = useState(true);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastSubmittedWish, setLastSubmittedWish] = useState('');
 
@@ -94,37 +98,37 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
 
   return (
     <div style={{ width: '100%' }}>
-      {/* 1. Special Heartfelt Letter from Harizal & Berlian */}
+      {/* 1. Special Heartfelt Letter from sender */}
       <div className="special-letter-card glass-panel">
         <div className="letter-header">
           <div className="letter-avatar-couple">💌</div>
           <div>
             <div className="letter-title">Pesan Hangat Dari Kami</div>
-            <div className="letter-subtitle">Harizal & Berlian Sekeluarga</div>
+            <div className="letter-subtitle">{senderName}</div>
           </div>
         </div>
 
         <div className="letter-body">
           <p>
-            <strong>Untuk Nurlaila Tersayang,</strong>
+            <strong>Untuk {recipientName} Tersayang,</strong>
           </p>
           <p>
-            Di hari yang penuh kebahagiaan ini, kami sekeluarga ingin mengucapkan <em>Selamat Ulang Tahun</em> yang paling hangat dan penuh berkah.
+            Di hari yang penuh kebahagiaan ini, kami ingin mengucapkan <em>Selamat Ulang Tahun</em> yang paling hangat dan penuh berkah.
           </p>
           <p>
-            Bagi kami (Harizal & Berlian), Nurlaila bukan sekadar sahabat, tapi sudah menjadi bagian dari keluarga kami sendiri yang begitu berharga dan kami sayangi.
+            Bagi kami ({senderName}), {recipientName} bukan sekadar sahabat, tapi sudah menjadi bagian keluarga yang begitu berharga dan kami sayangi.
           </p>
           <p>
-            Terima kasih atas segala tawa, ketulusan, dan kebaikan yang selalu mengalir selama ini. Semoga Allah SWT senantiasa menganugerahkan kesehatan, umur yang penuh berkah, kebahagiaan lahir batin, kelapangan rezeki, serta kemudahan dalam menggapai setiap impian dan cita-cita Nurlaila.
+            Terima kasih atas segala tawa, ketulusan, dan kebaikan yang selalu mengalir selama ini. Semoga Allah SWT senantiasa menganugerahkan kesehatan, umur yang penuh berkah, kebahagiaan lahir batin, kelapangan rezeki, serta kemudahan dalam menggapai setiap impian dan cita-cita {recipientName}.
           </p>
         </div>
 
         <div className="letter-signature">
-          Peluk hangat & doa tulus, Harizal & Berlian ❤️
+          Peluk hangat &amp; doa tulus, {senderName} ❤️
         </div>
       </div>
 
-      {/* 2. Interactive Surprise Gift: 3D Lanyard Frame of Nurlaila */}
+      {/* 2. Interactive Surprise Gift: 3D Lanyard Frame of recipient */}
       <div className="gift-card glass-panel" style={{ overflow: 'hidden', padding: '20px 14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
           <span style={{ fontSize: '24px' }}>🎁</span>
@@ -134,7 +138,7 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
         </div>
 
         <p style={{ fontSize: '13px', color: '#CBD5E1', marginBottom: '14px', textAlign: 'center', lineHeight: '1.5' }}>
-          Kado foto kenangan istimewa Nurlaila dalam frame kartu gantung 3D interaktif.
+          Kado foto kenangan istimewa {recipientName} dalam frame kartu gantung 3D interaktif.
         </p>
 
         {/* 3D Lanyard Stage */}
@@ -152,8 +156,8 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
           }}
         >
           <Lanyard
-            frontImage="/kado/nurlaila.jpeg"
-            backImage="/kado/nurlaila.jpeg"
+            frontImage={photoUrl || '/kado/nurlaila.jpeg'}
+            backImage={photoUrl || '/kado/nurlaila.jpeg'}
             cardColor="#1A1D26"
             strapColor="#E11D48"
             metal="gold"
