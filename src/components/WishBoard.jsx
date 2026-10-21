@@ -20,16 +20,17 @@ const DEFAULT_WISHES = [
   {
     id: 3,
     name: 'Mochi (Coucou)',
-    text: 'Horeee selamat ulang tahun Kak Nurlaila! Mochi ikut seneng banget hari ini! Jangan lupa tersenyum yaa! 🐾✨',
+    text: 'Horeee selamat ulang tahun Kak Nurlaila! Mochi ikut berdoa agar semua harapan Kak Nurlaila terwujud! 🐾✨',
     time: 'Baru saja',
   },
 ];
 
 export default function WishBoard({ recipientName = 'Nurlaila' }) {
   const [wishes, setWishes] = useState(DEFAULT_WISHES);
-  const [author, setAuthor] = useState('');
   const [message, setMessage] = useState('');
   const [isGiftOpen, setIsGiftOpen] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [lastSubmittedWish, setLastSubmittedWish] = useState('');
 
   useEffect(() => {
     try {
@@ -43,15 +44,16 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
     } catch {}
   }, []);
 
-  const handleAddWish = (e) => {
+  const handleSendHope = (e) => {
     e.preventDefault();
-    if (!author.trim() || !message.trim()) return;
+    if (!message.trim()) return;
 
+    const wishText = message.trim();
     const newWish = {
       id: Date.now(),
-      name: author.trim(),
-      text: message.trim(),
-      time: 'Baru saja',
+      name: 'Nurlaila ✨',
+      text: wishText,
+      time: 'Baru saja dipanjatkan',
     };
 
     const updated = [newWish, ...wishes];
@@ -60,16 +62,20 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
       localStorage.setItem('nurlaila_birthday_wishes', JSON.stringify(updated));
     } catch {}
 
-    setAuthor('');
+    setLastSubmittedWish(wishText);
     setMessage('');
 
+    // Trigger Success Audio & Confetti
     birthdaySynth.playChimeSuccess();
     confetti({
-      particleCount: 75,
-      spread: 75,
-      origin: { y: 0.7 },
-      colors: ['#FF5A5F', '#FFD166', '#06D6A0', '#118AB2', '#7928CA'],
+      particleCount: 100,
+      spread: 85,
+      origin: { y: 0.6 },
+      colors: ['#FF5A5F', '#FFD166', '#06D6A0', '#118AB2', '#7928CA', '#FF4081'],
     });
+
+    // Show the celebratory response modal
+    setShowSuccessModal(true);
   };
 
   const handleOpenGift = () => {
@@ -134,58 +140,144 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
         </button>
       </div>
 
-      {/* 3. Wish Wall & Personal Prayer */}
+      {/* 3. Section Sampaikan Harapan & Doa Nurlaila */}
       <div className="wish-card glass-panel">
-        <h3 style={{ fontSize: '17px', fontWeight: '700', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>🌸</span>
-          <span>Papan Doa & Harapan</span>
-        </h3>
-        <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '14px', lineHeight: '1.5' }}>
-          Tinggalkan doa indah untuk Nurlaila atau tulis harapan pribadimu di hari ulang tahun ini:
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+          <span style={{ fontSize: '20px' }}>🌸</span>
+          <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#F8FAFC' }}>
+            Sampaikan Harapan &amp; Doa Nurlaila
+          </h3>
+        </div>
+        
+        <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', lineHeight: '1.5' }}>
+          Di usia yang baru ini, tuliskan impian, cita-cita, dan doa yang Nurlaila panjatkan kepada Allah SWT:
         </p>
 
-        <div className="wish-list">
-          {wishes.map((w) => (
-            <div key={w.id} className="wish-item">
-              <div className="wish-author">
-                <span>{w.name}</span>
-                <span className="wish-time">{w.time}</span>
-              </div>
-              <p className="wish-text">{w.text}</p>
-            </div>
-          ))}
-        </div>
+        {/* Input Form Khusus Nurlaila */}
+        <form onSubmit={handleSendHope} className="wish-form">
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 12px',
+              borderRadius: '999px',
+              background: 'rgba(255, 77, 121, 0.15)',
+              border: '1px solid rgba(255, 77, 121, 0.3)',
+              color: '#FF6584',
+              fontSize: '12px',
+              fontWeight: '600',
+              width: 'fit-content',
+              marginBottom: '4px',
+            }}
+          >
+            <span>✍️</span>
+            <span>Harapan dari: Nurlaila</span>
+          </div>
 
-        <form onSubmit={handleAddWish} className="wish-form">
-          <input
-            type="text"
-            className="input-glass"
-            placeholder="Nama Pengirim..."
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            maxLength={35}
-            required
-          />
           <textarea
             className="input-glass"
-            rows={2}
-            placeholder="Tulis doa atau harapan terbaik..."
+            rows={3}
+            placeholder="Tuliskan harapan dan doa Nurlaila di sini (kesehatan, kelapangan rezeki, impian yang ingin dicapai)..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            maxLength={250}
+            maxLength={300}
             required
+            style={{ resize: 'none', lineHeight: '1.5' }}
           />
+
           <button
             type="submit"
             className="btn-interactive btn-primary"
-            style={{ width: '100%', marginTop: '4px' }}
+            style={{ width: '100%', marginTop: '6px', fontSize: '14.5px', padding: '12px 16px' }}
           >
-            💌 Kirim Doa & Harapan
+            ✨ Kirim Harapan
           </button>
         </form>
+
+        {/* Daftar Doa & Harapan Bersama */}
+        <div style={{ marginTop: '22px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+          <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#FDE047', marginBottom: '10px' }}>
+            📖 Kumpulan Doa &amp; Harapan:
+          </div>
+
+          <div className="wish-list">
+            {wishes.map((w) => (
+              <div key={w.id} className="wish-item">
+                <div className="wish-author">
+                  <span>{w.name}</span>
+                  <span className="wish-time">{w.time}</span>
+                </div>
+                <p className="wish-text">{w.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Surprise Modal */}
+      {/* MODAL RESPON: "Semoga harapan dan doa Nurlaila terwujud, Amin" */}
+      {showSuccessModal && (
+        <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="modal-close-btn"
+              onClick={() => setShowSuccessModal(false)}
+            >
+              ✕
+            </button>
+
+            <div style={{ fontSize: '54px', marginBottom: '12px' }}>🤲✨💖</div>
+
+            <h2 style={{ fontSize: '21px', fontWeight: '800', marginBottom: '12px', color: '#FDE047', lineHeight: '1.3' }}>
+              Semoga harapan dan doa Nurlaila terwujud, Amin
+            </h2>
+
+            {lastSubmittedWish && (
+              <div
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '14px',
+                  padding: '12px 14px',
+                  marginBottom: '16px',
+                  textAlign: 'left',
+                }}
+              >
+                <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>
+                  Doa yang baru saja dikirimkan:
+                </div>
+                <p style={{ color: '#E2E8F0', fontSize: '13.5px', fontStyle: 'italic', lineHeight: '1.4' }}>
+                  "{lastSubmittedWish}"
+                </p>
+              </div>
+            )}
+
+            <p style={{ color: '#CBD5E1', fontSize: '13.5px', lineHeight: '1.55', marginBottom: '20px' }}>
+              Kami (Harizal &amp; Berlian) ikut mengaminkan dari lubuk hati yang terdalam. Semoga Allah mudahkan dan kabulkan setiap bait doa Nurlaila! 🌸✨
+            </p>
+
+            <button
+              type="button"
+              className="btn-interactive btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+              onClick={() => {
+                birthdaySynth.playChimeSuccess();
+                confetti({
+                  particleCount: 70,
+                  spread: 80,
+                  origin: { y: 0.6 },
+                });
+                setShowSuccessModal(false);
+              }}
+            >
+              Aamiin Ya Rabbal Alamin 🤲❤️
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Surprise Gift Modal */}
       {isGiftOpen && (
         <div className="modal-overlay" onClick={() => setIsGiftOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -223,7 +315,7 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
                 SAHABAT TERBAIK SEPANJANG MASA
               </div>
               <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '3px' }}>
-                Diberikan dengan penuh kasih oleh Harizal & Berlian
+                Diberikan dengan penuh kasih oleh Harizal &amp; Berlian
               </div>
             </div>
 
