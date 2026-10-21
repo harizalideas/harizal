@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { birthdaySynth } from './AudioSynth';
+import Lanyard from './Lanyard';
 
 const DEFAULT_WISHES = [
   {
@@ -28,7 +29,7 @@ const DEFAULT_WISHES = [
 export default function WishBoard({ recipientName = 'Nurlaila' }) {
   const [wishes, setWishes] = useState(DEFAULT_WISHES);
   const [message, setMessage] = useState('');
-  const [isGiftOpen, setIsGiftOpen] = useState(false);
+  const [isGiftOpen, setIsGiftOpen] = useState(true); // Open by default or revealable
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastSubmittedWish, setLastSubmittedWish] = useState('');
 
@@ -65,7 +66,6 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
     setLastSubmittedWish(wishText);
     setMessage('');
 
-    // Trigger Success Audio & Confetti
     birthdaySynth.playChimeSuccess();
     confetti({
       particleCount: 100,
@@ -74,17 +74,21 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
       colors: ['#FF5A5F', '#FFD166', '#06D6A0', '#118AB2', '#7928CA', '#FF4081'],
     });
 
-    // Show the celebratory response modal
     setShowSuccessModal(true);
   };
 
-  const handleOpenGift = () => {
-    setIsGiftOpen(true);
-    birthdaySynth.playChimeSuccess();
-    confetti({
-      particleCount: 100,
-      spread: 80,
-      origin: { y: 0.5 },
+  const handleToggleGift = () => {
+    setIsGiftOpen((prev) => {
+      const next = !prev;
+      if (next) {
+        birthdaySynth.playChimeSuccess();
+        confetti({
+          particleCount: 90,
+          spread: 80,
+          origin: { y: 0.5 },
+        });
+      }
+      return next;
     });
   };
 
@@ -120,24 +124,75 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
         </div>
       </div>
 
-      {/* 2. Interactive Surprise Gift Box */}
-      <div className="gift-card glass-panel">
-        <div className="gift-box-icon">🎁</div>
-        <h3 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '6px' }}>
-          Kado Kejutan Untuk Nurlaila
-        </h3>
-        <p style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', lineHeight: '1.5' }}>
-          Ada sebuah kartu penghargaan & doa spesial yang disiapkan khusus untuk Nurlaila. Ketuk tombol di bawah untuk membukanya!
+      {/* 2. Interactive Surprise Gift: 3D Lanyard Frame of Nurlaila */}
+      <div className="gift-card glass-panel" style={{ overflow: 'hidden', padding: '20px 14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <span style={{ fontSize: '24px' }}>🎁</span>
+          <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#FDE047' }}>
+            Kado Spesial: Frame Lanyard 3D
+          </h3>
+        </div>
+
+        <p style={{ fontSize: '13px', color: '#CBD5E1', marginBottom: '14px', textAlign: 'center', lineHeight: '1.5' }}>
+          Kado foto kenangan istimewa Nurlaila dalam frame kartu gantung 3D interaktif.
         </p>
 
-        <button
-          type="button"
-          className="btn-interactive btn-primary"
-          style={{ width: '100%', maxWidth: '280px' }}
-          onClick={handleOpenGift}
+        {/* 3D Lanyard Stage */}
+        <div
+          style={{
+            width: '100%',
+            height: '460px',
+            position: 'relative',
+            borderRadius: '18px',
+            background: 'radial-gradient(circle at 50% 30%, rgba(30, 36, 52, 0.7), rgba(10, 12, 18, 0.95))',
+            border: '1px solid rgba(251, 191, 36, 0.25)',
+            boxShadow: 'inset 0 0 30px rgba(0, 0, 0, 0.6), 0 10px 25px rgba(0, 0, 0, 0.4)',
+            marginBottom: '12px',
+            overflow: 'hidden',
+          }}
         >
-          ✨ Buka Kado Kejutan!
-        </button>
+          <Lanyard
+            frontImage="/kado/nurlaila.jpeg"
+            backImage="/kado/nurlaila.jpeg"
+            cardColor="#1A1D26"
+            strapColor="#E11D48"
+            metal="gold"
+            finish="glossy"
+            orientation="portrait"
+            size={0.68}
+            gravity={0.9}
+            breeze={0.4}
+            elasticity={0.6}
+            damping={0.45}
+            interactive={true}
+          />
+
+          {/* Floating hint badge */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'rgba(0, 0, 0, 0.65)',
+              backdropFilter: 'blur(8px)',
+              padding: '6px 14px',
+              borderRadius: '999px',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              fontSize: '11.5px',
+              color: '#FDE047',
+              whiteSpace: 'nowrap',
+              pointerEvents: 'none',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+            }}
+          >
+            👆 Sentuh, tarik &amp; putar foto Nurlaila!
+          </div>
+        </div>
+
+        <p style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center', lineHeight: '1.4' }}>
+          ✨ <em>Kartu ini bisa ditarik, diayunkan, dan disentuh untuk membalikkan posisi foto secara 3D realtime!</em>
+        </p>
       </div>
 
       {/* 3. Section Sampaikan Harapan & Doa Nurlaila */}
@@ -272,68 +327,6 @@ export default function WishBoard({ recipientName = 'Nurlaila' }) {
               }}
             >
               Aamiin Ya Rabbal Alamin 🤲❤️
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Surprise Gift Modal */}
-      {isGiftOpen && (
-        <div className="modal-overlay" onClick={() => setIsGiftOpen(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="modal-close-btn"
-              onClick={() => setIsGiftOpen(false)}
-            >
-              ✕
-            </button>
-
-            <div style={{ fontSize: '50px', marginBottom: '10px' }}>👑🌸💖</div>
-
-            <h2 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '8px', color: '#FDE047' }}>
-              Selamat Ulang Tahun, {recipientName}!
-            </h2>
-
-            <p style={{ color: '#E2E8F0', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px' }}>
-              "Sahabat sejati adalah keluarga yang kita pilih dengan hati. Semoga di usiamu yang baru ini, setiap langkahmu dipenuhi keberkahan, senyumanmu selalu merekah, dan hari-harimu selalu dikelilingi cinta kasih."
-            </p>
-
-            <div
-              style={{
-                background: 'rgba(251, 191, 36, 0.1)',
-                border: '1px dashed rgba(251, 191, 36, 0.4)',
-                borderRadius: '16px',
-                padding: '14px',
-                marginBottom: '18px',
-              }}
-            >
-              <div style={{ fontSize: '11.5px', fontWeight: '700', color: '#FBBF24', marginBottom: '3px' }}>
-                🌟 KARTU PENGHARGAAN KELUARGA
-              </div>
-              <div style={{ fontSize: '16px', fontWeight: '800', color: '#FFF' }}>
-                SAHABAT TERBAIK SEPANJANG MASA
-              </div>
-              <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '3px' }}>
-                Diberikan dengan penuh kasih oleh Harizal &amp; Berlian
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="btn-interactive btn-primary"
-              style={{ width: '100%' }}
-              onClick={() => {
-                birthdaySynth.playChimeSuccess();
-                confetti({
-                  particleCount: 80,
-                  spread: 85,
-                  origin: { y: 0.5 },
-                });
-                setIsGiftOpen(false);
-              }}
-            >
-              Aamiin, Terima Kasih Banyak! 💖
             </button>
           </div>
         </div>
