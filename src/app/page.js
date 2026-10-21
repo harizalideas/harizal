@@ -296,7 +296,7 @@ export default function LandingHomePage() {
               <input
                 type="text"
                 required
-                placeholder="Contoh: Nurlaila"
+                placeholder="Contoh: Jane Doe"
                 className="form-input"
                 value={createForm.recipient_name}
                 onChange={(e) => setCreateForm({ ...createForm, recipient_name: e.target.value })}
@@ -311,7 +311,7 @@ export default function LandingHomePage() {
               <input
                 type="text"
                 required
-                placeholder="Contoh: Harizal & Berlian Sekeluarga"
+                placeholder="Contoh: John Doe"
                 className="form-input"
                 value={createForm.sender_name}
                 onChange={(e) => setCreateForm({ ...createForm, sender_name: e.target.value })}
